@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ import java.util.Set;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.zerokol.views.JoystickView;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -35,9 +37,11 @@ public class MainActivity extends AppCompatActivity
 		implements NavigationView.OnNavigationItemSelectedListener {
 
 	private Button btOn;
-	private ListView listView;
+	private JoystickView joystick;
+	private TextView angle;
+	private TextView power;
 	boolean deviceConnected=false;
-	private final String DEVICE_ADDRESS="20:13:10:15:33:66";
+	private String DEVICE_ADDRESS="D4:93:98:AD:F9:3F";
 	private final UUID PORT_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");//Serial Port Service ID
 	private BluetoothDevice device;
 	private BluetoothSocket socket;
@@ -49,7 +53,10 @@ public class MainActivity extends AppCompatActivity
 		setContentView(R.layout.activity_main);
 
 		btOn = (Button) findViewById(R.id.btOn);
-		listView = (ListView) findViewById(R.id.dispositivos);
+		angle = (TextView) findViewById(R.id.angle);
+		power = (TextView) findViewById(R.id.power);
+		joystick = (JoystickView) findViewById(R.id.joystickView);
+		createJoystickListener();
 
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
@@ -74,18 +81,8 @@ public class MainActivity extends AppCompatActivity
 		}
 	}
 
-	@SuppressWarnings("StatementWithEmptyBody")
 	@Override
 	public boolean onNavigationItemSelected(MenuItem item) {
-		// Handle navigation view item clicks here.
-		int id = item.getItemId();
-
-		if (id == R.id.nav_manejar) {
-
-		} else if (id == R.id.nav_conectar) {
-
-		}
-
 		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawer.closeDrawer(GravityCompat.START);
 		return true;
@@ -94,11 +91,10 @@ public class MainActivity extends AppCompatActivity
 	public void btOn(View view) {
 		if(BTinit()) {
 			if (BTconnect()) {
-				//setUiEnabled(true);
+				Toast.makeText(getApplicationContext(), "Conectado",Toast.LENGTH_SHORT).show();
+				setUiConnected(true);
 				deviceConnected = true;
-				Toast.makeText(getApplicationContext(), "Turned on", Toast.LENGTH_LONG).show();
 			}
-
 		}
 	}
 
@@ -107,26 +103,20 @@ public class MainActivity extends AppCompatActivity
 		boolean found = false;
 		BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		if (bluetoothAdapter == null) {
-			Toast.makeText(getApplicationContext(),"Device doesnt Support Bluetooth",Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(),"El dispositivo no soporta Bluetooth",Toast.LENGTH_SHORT).show();
 		}
 		if(!bluetoothAdapter.isEnabled())
 		{
-			Intent enableAdapter = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-			startActivityForResult(enableAdapter, 0);
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			Toast.makeText(getApplicationContext(),"Por favor, encienda el Bluetooth y vuelva a intentar",Toast.LENGTH_SHORT).show();
+			return false;
 		}
 		Set<BluetoothDevice> bondedDevices = bluetoothAdapter.getBondedDevices();
 		if(bondedDevices.isEmpty())
 		{
-			Toast.makeText(getApplicationContext(),"Please Pair the Device first",Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(),"Por favor, vincule primero los dispositivos.",Toast.LENGTH_SHORT).show();
 		}
 		else
 		{
-			ArrayList list = new ArrayList();
 			for (BluetoothDevice iterator : bondedDevices)
 			{
 				if(iterator.getAddress().equals(DEVICE_ADDRESS))
@@ -136,12 +126,14 @@ public class MainActivity extends AppCompatActivity
 					break;
 				}
 			}
+			if(!found) {
+				Toast.makeText(getApplicationContext(),"Dispositivo no encontrado",Toast.LENGTH_SHORT).show();
+			}
 		}
 		return found;
 	}
 
-	public boolean BTconnect()
-	{
+	public boolean BTconnect() {
 		boolean connected = true;
 		try {
 			socket = device.createRfcommSocketToServiceRecord(PORT_UUID);
@@ -150,7 +142,7 @@ public class MainActivity extends AppCompatActivity
 			e.printStackTrace();
 			connected = false;
 		}
-		if(connected) {
+		if (connected) {
 			try {
 				outputStream = socket.getOutputStream();
 			} catch (IOException e) {
@@ -160,27 +152,22 @@ public class MainActivity extends AppCompatActivity
 		return connected;
 	}
 
-	/*public void list(View v) {
-		pairedDevices = btAdapter.getBondedDevices();
-		ArrayList list = new ArrayList();
+	private void setUiConnected(boolean bool) {
+		btOn.setEnabled(!bool);
+	}
 
-		for (BluetoothDevice bt : pairedDevices)
-			list.add(bt.getName());
-		Toast.makeText(getApplicationContext(), "Showing Paired Devices", Toast.LENGTH_SHORT).show();
-
-		final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, list);
-		listView.setAdapter(adapter);
-	}*/
+	private void createJoystickListener() {
+		joystick.setOnJoystickMoveListener(new JoystickView.OnJoystickMoveListener() {
+			@Override
+			public void onValueChanged(int angulo, int poder, int direction) {
+				angle.setText("Angle: " + String.valueOf(angulo) + "°");
+				power.setText("Power: " + String.valueOf(poder) + "%");
+			}
+		}, JoystickView.DEFAULT_LOOP_INTERVAL);
+	}
 
 	@Override
 	public void onDestroy() {
-		try {
-			outputStream.close();
-			socket.close();
-		} catch(IOException e) {
-            e.printStackTrace();
-        }
-		deviceConnected=false;
 		super.onDestroy();
 	}
 }
