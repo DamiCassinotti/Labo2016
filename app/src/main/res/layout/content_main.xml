@@ -44,11 +44,19 @@
         android:text="Power: "
         android:layout_alignParentStart="true" />
 
-    <com.zerokol.views.JoystickView
+    <com.fiuba.dami.labo2016.JoystickView2
         android:id="@+id/joystickView"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_below="@+id/power"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/cant"
+        android:layout_below="@+id/joystickView"
+        android:text=""
         android:layout_alignParentStart="true" />
 
 </RelativeLayout>
