@@ -113,7 +113,7 @@ public class JoystickView2 extends View implements Runnable {
             this.yPosition = (int)(((double)this.yPosition - this.centerY) * (double)this.joystickRadius / abs + this.centerY);
         }
 
-//        this.invalidate();
+        this.invalidate();
         if(event.getAction() == 1) {
             this.xPosition = (int)this.centerX;
             this.yPosition = (int)this.centerY;
@@ -122,7 +122,7 @@ public class JoystickView2 extends View implements Runnable {
         }
 
         if(this.onJoystickMoveListener != null && event.getAction() == 0) {
-            if(this.thread != null && this.thread.isAlive()) {
+            if (this.thread != null && this.thread.isAlive()) {
                 this.thread.interrupt();
             }
 

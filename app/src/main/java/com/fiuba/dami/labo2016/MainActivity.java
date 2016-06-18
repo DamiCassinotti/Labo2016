@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity
 		implements NavigationView.OnNavigationItemSelectedListener {
 
 	private Button btOn;
-	private JoystickView2 joystick;
+	private Joystick joystick;
 	private TextView angle;
 	private TextView power;
 	private TextView llamados;
@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity
 		angle = (TextView) findViewById(R.id.angle);
 		power = (TextView) findViewById(R.id.power);
 		llamados = (TextView) findViewById(R.id.cant);
-		joystick = (JoystickView2) findViewById(R.id.joystickView);
+		joystick = (Joystick) findViewById(R.id.joystickView);
 		createJoystickListener();
 
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -76,6 +76,14 @@ public class MainActivity extends AppCompatActivity
 	@Override
 	public boolean onNavigationItemSelected(MenuItem item) {
 		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+		int id = item.getItemId();
+		if(id == R.id.nav_manejar) {
+			btOn.setEnabled(false);
+			joystick.setEnabled(true);
+		} else if(id == R.id.nav_conectar) {
+			btOn.setEnabled(true);
+			joystick.setEnabled(false);
+		}
 		drawer.closeDrawer(GravityCompat.START);
 		return true;
 	}
@@ -149,15 +157,24 @@ public class MainActivity extends AppCompatActivity
 	}
 
 	private void createJoystickListener() {
-		joystick.setOnJoystickMoveListener(new JoystickView2.OnJoystickMoveListener() {
+		joystick.setListener(new Joystick.JoyStickListener() {
 			@Override
-			public void onValueChanged(int angulo, int poder, int direction) {
+			public void onMove(Joystick joystick, double angulo, double poder) {
 				angle.setText("Angle: " + String.valueOf(angulo) + "°");
 				power.setText("Power: " + String.valueOf(poder) + "%");
 				llamados.setText(String.valueOf(i));
 				i++;
 			}
-		}, JoystickView2.DEFAULT_LOOP_INTERVAL);
+		});
+//		joystick.setOnJoystickMoveListener(new JoystickView2.OnJoystickMoveListener() {
+//			@Override
+//			public void onValueChanged(int angulo, int poder, int direction) {
+//				angle.setText("Angle: " + String.valueOf(angulo) + "°");
+//				power.setText("Power: " + String.valueOf(poder) + "%");
+//				llamados.setText(String.valueOf(i));
+//				i++;
+//			}
+//		}, JoystickView2.DEFAULT_LOOP_INTERVAL);
 	}
 
 	@Override
