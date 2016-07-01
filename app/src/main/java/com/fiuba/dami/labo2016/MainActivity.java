@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity
 	private TextView power;
 	private TextView llamados;
 	boolean deviceConnected=false;
-	private String DEVICE_ADDRESS="D4:93:98:AD:F9:3F";
+	private String DEVICE_ADDRESS="20:16:02:30:88:90";
 	private final UUID PORT_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");//Serial Port Service ID
 	private BluetoothDevice device;
 	private BluetoothSocket socket;
@@ -119,6 +119,7 @@ public class MainActivity extends AppCompatActivity
 		{
 			for (BluetoothDevice iterator : bondedDevices)
 			{
+//				Toast.makeText(getApplicationContext(),iterator.getName() + " " + iterator.getAddress(),Toast.LENGTH_SHORT).show();
 				if(iterator.getAddress().equals(DEVICE_ADDRESS))
 				{
 					device = iterator;
@@ -159,10 +160,10 @@ public class MainActivity extends AppCompatActivity
 	private void createJoystickListener() {
 		joystick.setListener(new Joystick.JoyStickListener() {
 			@Override
-			public void onMove(Joystick joystick, double angulo, double poder) {
-				angle.setText("Angle: " + String.valueOf(angulo) + "°");
-				power.setText("Power: " + String.valueOf(poder) + "%");
-				llamados.setText(String.valueOf(i));
+			public void onMove(Joystick joystick, double angulo, double poder, float posX, float posY) {
+				angle.setText("Angle: " + String.valueOf((int)Math.round(angulo)) + "°;	x: " + (int)Math.round(posX));
+				power.setText("Power: " + String.valueOf((int)Math.round(poder)) + "%;	y: " + (int)Math.round(posY));
+				llamados.setText("Llamados: " + String.valueOf(i));
 				i++;
 			}
 		});

@@ -47,7 +47,7 @@ public class Joystick extends View {
     Bitmap buttonBitmap = null;
 
     public interface JoyStickListener {
-        void onMove(Joystick joyStick, double angle, double power);
+        void onMove(Joystick joyStick, double angle, double power, float posX, float posY);
     }
 
     public Joystick(Context context) {
@@ -143,7 +143,7 @@ public class Joystick extends View {
                     posY = ((posY - centerY) * radius / abs + centerY);
                 }
 
-                angle = Math.toDegrees(Math.atan2(centerY - posY, centerX - posX));
+                angle = -(Math.toDegrees(Math.atan2(-(centerY - posY), -(centerX - posX ))));
 
                 power = (100 * Math.sqrt((posX - centerX)
                         * (posX - centerX) + (posY - centerY)
@@ -164,7 +164,7 @@ public class Joystick extends View {
         }
 
         if (listener != null) {
-            listener.onMove(this, angle, power);
+            listener.onMove(this, angle, power, posX - centerX, centerY - posY);
         }
         return true;
     }
